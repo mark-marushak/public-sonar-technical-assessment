@@ -6,19 +6,19 @@ import (
 )
 
 func TestSearchOR(t *testing.T) {
-	conds := []Condition{
-		{"manchester united"},
-		{"manchester"},
-		{"united"},
-		{"man u"},
-		{"man"},
-		{"man utd"},
-		{"mufc"},
+	conds := []Node{
+		{Phrase: "manchester united"},
+		{Phrase: "manchester"},
+		{Phrase: "united"},
+		{Phrase: "man u"},
+		{Phrase: "man"},
+		{Phrase: "man utd"},
+		{Phrase: "mufc"},
 	}
 
-	group := Group{CondType: OR}
+	group := Node{CondType: OR}
 	for i := 0; i < len(conds); i++ {
-		group.Add(conds[i])
+		group.Add(&conds[i])
 	}
 
 	message := map[string]int{
@@ -32,13 +32,13 @@ func TestSearchOR(t *testing.T) {
 
 func TestSearchAND(t *testing.T) {
 
-	group1 := Group{CondType: OR}
-	group1.Add(Condition{"mbappe"})
-	group1.Add(Condition{"lukaku"})
+	group1 := Node{CondType: OR}
+	group1.Add(&Node{Phrase: "mbappe"})
+	group1.Add(&Node{Phrase: "lukaku"})
 
-	group2 := Group{CondType: AND}
-	group2.Add(group1)
-	group2.Add(Condition{"scored"})
+	group2 := Node{CondType: AND}
+	group2.Add(&group1)
+	group2.Add(&Node{Phrase: "scored"})
 
 	message := map[string]int{
 		"lukaku": 1,
@@ -50,33 +50,33 @@ func TestSearchAND(t *testing.T) {
 
 func TestSearchStrongQuery(t *testing.T) {
 
-	g11 := Condition{"juventus"}
+	g11 := &Node{Phrase: "juventus"}
 
-	g12 := Group{CondType: OR}
-	g12.Add(Condition{"real madrid"})
-	g12.Add(Condition{"realmadrid"})
+	g12 := Node{CondType: OR}
+	g12.Add(&Node{Phrase: "real madrid"})
+	g12.Add(&Node{Phrase: "realmadrid"})
 
-	g13 := Condition{"barcelona"}
+	g13 := &Node{Phrase: "barcelona"}
 
-	g1 := Group{CondType: OR}
+	g1 := Node{CondType: OR}
 	g1.Add(g11)
-	g1.Add(g12)
+	g1.Add(&g12)
 	g1.Add(g13)
 
-	g21 := Group{CondType: OR}
-	g21.Add(Condition{"messi"})
-	g21.Add(Condition{"ronaldo"})
-	g22 := Group{CondType: OR}
-	g22.Add(Condition{"goals"})
-	g22.Add(Condition{"goal"})
+	g21 := Node{CondType: OR}
+	g21.Add(&Node{Phrase: "messi"})
+	g21.Add(&Node{Phrase: "ronaldo"})
+	g22 := Node{CondType: OR}
+	g22.Add(&Node{Phrase: "goals"})
+	g22.Add(&Node{Phrase: "goal"})
 
-	g2 := Group{CondType: AND}
-	g2.Add(g21)
-	g2.Add(g22)
+	g2 := Node{CondType: AND}
+	g2.Add(&g21)
+	g2.Add(&g22)
 
-	group := Group{CondType: AND}
-	group.Add(g1)
-	group.Add(g2)
+	group := Node{CondType: AND}
+	group.Add(&g1)
+	group.Add(&g2)
 
 	message := map[string]int{
 		"messi":    1,
@@ -85,4 +85,115 @@ func TestSearchStrongQuery(t *testing.T) {
 	}
 
 	assert.True(t, group.search(message), "Case didn't match")
+}
+
+func TestTableSearch(t *testing.T) {
+	tests := []struct {
+		name    string
+		expect  bool
+		message map[string]int
+		query   Node
+	}{
+		{
+			"Grouped query",
+			true,
+			map[string]int{
+				"juventus": 1,
+				"ronaldo":  1,
+				"goals":    1,
+			},
+			Node{
+				CondType: AND,
+				Conditions: []InterfaceNode{
+					&Node{
+						CondType: OR,
+						Conditions: []InterfaceNode{
+							&Node{Phrase: "juventus"},
+							&Node{CondType: OR, Conditions: []InterfaceNode{
+								&Node{Phrase: "real madrid"},
+								&Node{Phrase: "realmadrid"},
+							}},
+							&Node{Phrase: "barcelona"},
+						},
+					},
+					&Node{
+						CondType: AND,
+						Conditions: []InterfaceNode{
+							&Node{CondType: OR, Conditions: []InterfaceNode{
+								&Node{Phrase: "messi"},
+								&Node{Phrase: "ronaldo"},
+							}},
+							&Node{CondType: OR, Conditions: []InterfaceNode{
+								&Node{Phrase: "goal"},
+								&Node{Phrase: "goals"},
+							}},
+						},
+					},
+				},
+			},
+		},
+		{
+			"Long OR query",
+			true,
+			map[string]int{
+				"man utd": 1,
+			},
+			Node{
+				CondType: OR,
+				Conditions: []InterfaceNode{
+					&Node{Phrase: "manchester united"},
+					&Node{Phrase: "manchester"},
+					&Node{Phrase: "united"},
+					&Node{Phrase: "man u"},
+					&Node{Phrase: "man"},
+					&Node{Phrase: "man utd"},
+					&Node{Phrase: "mufc"},
+				},
+			},
+		},
+		{
+			"Shor OR with AND query",
+			true,
+			map[string]int{
+				"scored": 1,
+				"lukaku": 1,
+			},
+			Node{
+				CondType: AND,
+				Conditions: []InterfaceNode{
+					&Node{
+						CondType: OR,
+						Conditions: []InterfaceNode{
+							&Node{Phrase: "mbappe"},
+							&Node{Phrase: "lukaku"},
+						},
+					},
+					&Node{Phrase: "scored"},
+				},
+			},
+		},
+		{
+			"Query with one word",
+			true,
+			map[string]int{
+				"ajax": 1,
+			},
+			Node{
+				CondType: AND,
+				Conditions: []InterfaceNode{
+					&Node{Phrase: "ajax"},
+				},
+			},
+		},
+	}
+
+	var result bool
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result = test.query.search(test.message)
+			if result != test.expect {
+				t.Fail()
+			}
+		})
+	}
 }

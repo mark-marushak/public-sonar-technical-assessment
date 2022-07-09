@@ -1,34 +1,46 @@
 package query
 
-/**
-(\((.*?)\)(*ACCEPT))
-(mbappe OR lukaku) AND scored
-*/
-
-const (
-	AND = "AND"
-	OR  = "OR"
+var (
+	AND CondType = condType("AND")
+	OR  CondType = condType("OR")
 )
 
+type CondType *string
+
+func condType(s string) *string {
+	return &s
+}
+
 type InterfaceNode interface {
-	search(map[string]int) bool
+	Search(map[string]int) bool
+	Add(node InterfaceNode)
+	SetCondType(condType CondType)
+	SetPhrase(string)
 }
 
-type Group struct {
+type Node struct {
+	Phrase     string
 	Conditions []InterfaceNode
-	CondType   string
-	Limit      int
+	CondType   CondType
 }
 
-func (g *Group) Add(node InterfaceNode) {
+func (g *Node) Add(node InterfaceNode) {
 	g.Conditions = append(g.Conditions, node)
 }
 
-func (g Group) search(message map[string]int) bool {
+func (g *Node) SetCondType(condType CondType) {
+	g.CondType = condType
+}
+
+func (g *Node) SetPhrase(s string) {
+	g.Phrase = s
+}
+
+func (g Node) Search(message map[string]int) bool {
 	var flag = false
 	if g.CondType == OR {
 		for i := 0; i < len(g.Conditions); i++ {
-			if g.Conditions[i].search(message) == true {
+			if g.Conditions[i].Search(message) == true {
 				flag = true
 			}
 		}
@@ -39,22 +51,16 @@ func (g Group) search(message map[string]int) bool {
 	if g.CondType == AND {
 		flag = true
 		for i := 0; i < len(g.Conditions); i++ {
-			if g.Conditions[i].search(message) == false {
+			if g.Conditions[i].Search(message) == false {
 				flag = false
 				break
 			}
 		}
 
+		return flag
 	}
 
-	return flag
-}
-
-type Condition struct {
-	Phrase string
-}
-
-func (cond Condition) search(message map[string]int) bool {
-	_, ok := message[cond.Phrase]
+	_, ok := message[g.Phrase]
 	return ok
+
 }
