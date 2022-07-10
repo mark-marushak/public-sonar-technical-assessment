@@ -1,47 +1,31 @@
 package query
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/stretchr/testify/assert"
-	"os"
+	"log"
 	"reflect"
 	"testing"
 )
 
 func TestParse(t *testing.T) {
-	file, err := os.Open("/home/sandbox/GolandProjects/public-sonar-technical-assessment/storage/queries/cases.json")
+	queries, err := ParseJson("/home/sandbox/GolandProjects/public-sonar-technical-assessment/storage/queries/cases.json")
 	if err != nil {
-		fmt.Println(err)
-		t.Fail()
+		log.Fatal(err)
 	}
-	defer file.Close()
 
-	type (
-		Query struct {
-			CaseID  int
-			Query   string
-			Queries string
+	if len(queries) <= 0 {
+		t.FailNow()
+	}
+
+	for i := 0; i < len(queries); i++ {
+		if queries[i].CaseID == 0 {
+			t.FailNow()
 		}
-		Queries []Query
-	)
 
-	queries := Queries{}
-
-	err = Parse(json.NewDecoder(file), &queries)
-	if err != nil {
-		fmt.Println(err)
-		t.Fail()
+		if queries[i].Query == "" {
+			t.FailNow()
+		}
 	}
-
-	fmt.Println(queries)
-}
-
-//(juventus OR (real madrid OR realmadrid) OR barcelona) AND ((messi OR ronaldo) AND (goal OR goals))
-func TestParseQueryBuilder(t *testing.T) {
-	//s := "(juventus OR (real madrid OR realmadrid) OR barcelona) AND ((messi OR ronaldo) AND (goal OR goals))"
-	s := "manchester united OR manchester OR united OR man u OR man OR man utd OR mufc"
-	ParseQuery(s)
 }
 
 func TestOpenGroupFunc(t *testing.T) {

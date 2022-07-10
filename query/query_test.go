@@ -27,7 +27,7 @@ func TestSearchOR(t *testing.T) {
 		"man utd": 1,
 	}
 
-	assert.True(t, group.search(message), "Case didn't match")
+	assert.True(t, group.Search(message), "Case didn't match")
 }
 
 func TestSearchAND(t *testing.T) {
@@ -45,7 +45,7 @@ func TestSearchAND(t *testing.T) {
 		"scored": 1,
 	}
 
-	assert.True(t, group2.search(message), "Case didn't match")
+	assert.True(t, group2.Search(message), "Case didn't match")
 }
 
 func TestSearchStrongQuery(t *testing.T) {
@@ -84,7 +84,7 @@ func TestSearchStrongQuery(t *testing.T) {
 		"juventus": 1,
 	}
 
-	assert.True(t, group.search(message), "Case didn't match")
+	assert.True(t, group.Search(message), "Case didn't match")
 }
 
 func TestTableSearch(t *testing.T) {
@@ -190,7 +190,7 @@ func TestTableSearch(t *testing.T) {
 	var result bool
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			result = test.query.search(test.message)
+			result = test.query.Search(test.message)
 			if result != test.expect {
 				t.Fail()
 			}

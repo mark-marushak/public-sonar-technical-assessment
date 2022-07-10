@@ -1,19 +1,40 @@
 package query
 
 import (
+	"public-sonar-technical-assessment/parser"
 	"strings"
 	"unicode"
 )
 
-type Parser interface {
-	Decode(interface{}) error
+func ParseJson(filepath string) ([]Query, error) {
+	var output = make([]QueryDTO, 0, 100)
+	err := parser.ParseJson(filepath, &output)
+	if err != nil {
+		return nil, err
+	}
+
+	queries := make([]Query, 0, len(output))
+	for i := 0; i < len(output); i++ {
+		dtoQuery := output[i]
+		if dtoQuery.Queries != "" {
+			queries = append(queries, Query{
+				CaseID: dtoQuery.CaseID,
+				Query:  dtoQuery.Queries,
+			})
+		}
+
+		if dtoQuery.Query != "" {
+			queries = append(queries, Query{
+				CaseID: dtoQuery.CaseID,
+				Query:  dtoQuery.Query,
+			})
+		}
+	}
+
+	return queries, nil
 }
 
-func Parse(parser Parser, v interface{}) error {
-	return parser.Decode(v)
-}
-
-func ParseQuery(queries string) InterfaceNode {
+func ParseString(queries string) InterfaceNode {
 	const (
 		OpenGroup  = '('
 		CloseGroup = ')'
