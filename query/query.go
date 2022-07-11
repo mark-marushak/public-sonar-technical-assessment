@@ -12,7 +12,7 @@ func condType(s string) *string {
 }
 
 type InterfaceNode interface {
-	Search(map[string]int) bool
+	Search(func(string) bool) bool
 	Add(node InterfaceNode)
 	SetCondType(condType CondType)
 	SetPhrase(string)
@@ -36,11 +36,11 @@ func (g *Node) SetPhrase(s string) {
 	g.Phrase = s
 }
 
-func (g Node) Search(message map[string]int) bool {
+func (g Node) Search(compareFunc func(s string) bool) bool {
 	var flag = false
 	if g.CondType == OR {
 		for i := 0; i < len(g.Conditions); i++ {
-			if g.Conditions[i].Search(message) == true {
+			if g.Conditions[i].Search(compareFunc) == true {
 				flag = true
 			}
 		}
@@ -51,7 +51,7 @@ func (g Node) Search(message map[string]int) bool {
 	if g.CondType == AND {
 		flag = true
 		for i := 0; i < len(g.Conditions); i++ {
-			if g.Conditions[i].Search(message) == false {
+			if g.Conditions[i].Search(compareFunc) == false {
 				flag = false
 				break
 			}
@@ -60,7 +60,5 @@ func (g Node) Search(message map[string]int) bool {
 		return flag
 	}
 
-	_, ok := message[g.Phrase]
-	return ok
-
+	return compareFunc(g.Phrase)
 }
