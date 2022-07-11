@@ -49,8 +49,17 @@ func ParseString(queries string) InterfaceNode {
 
 	var formated = stringWithOutAND
 
-	var queue []InterfaceNode
-	for start, r := range formated {
+	var queue = make([]InterfaceNode, 0, 10)
+	queue = append(queue, &Node{})
+	for i := 0; i < len(formated); i++ {
+		if len(strings.Split(formated, " ")) <= 1 {
+			AndGroupCondFunc(queue)
+			SetPhraseFunc(queue, formated)
+			break
+		}
+
+		r := rune(formated[i])
+
 		switch r {
 		case OpenGroup:
 			OpenGroupFunc(queue)
@@ -62,9 +71,11 @@ func ParseString(queries string) InterfaceNode {
 			AndGroupCondFunc(queue)
 		default:
 			if unicode.IsLetter(r) {
-				for end, r2 := range formated[start:] {
+				for end, r2 := range formated[i:] {
 					if unicode.IsLetter(r2) == false && unicode.IsSpace(r2) == false {
-						SetPhraseFunc(queue, formated[start:end])
+						SetPhraseFunc(queue, formated[i:i+end])
+						formated = formated[end:]
+						break
 					}
 				}
 			}

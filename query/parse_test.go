@@ -1,10 +1,15 @@
 package query
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"log"
+	"public-sonar-technical-assessment/repository"
+	"public-sonar-technical-assessment/repository/regex"
 	"reflect"
+	"strings"
 	"testing"
+	"unicode"
 )
 
 func TestParse(t *testing.T) {
@@ -129,11 +134,60 @@ func TestSetPhraseFunc(t *testing.T) {
 		t.Fail()
 	}
 
-	result := queue[0].Search(map[string]int{
-		"Hello": 1,
-		"mark":  1,
-		"one":   1,
-	})
+	result := queue[0].Search(repository.NewServiceCompare(regex.RegexCompare{"Hello mark one"}).Compare)
 
 	assert.True(t, result)
+}
+
+func TestDefineType(t *testing.T) {
+	queries := "(juventus OR (real madrid OR realmadrid) OR barcelona) AND ((messi OR ronaldo) AND (goal OR goals))"
+
+	const (
+		OpenGroup  = rune('(')
+		CloseGroup = rune(')')
+		OR         = rune('|')
+		AND        = rune('&')
+	)
+
+	queries = strings.ReplaceAll(queries, "((", "( (")
+	queries = strings.ReplaceAll(queries, "))", ") )")
+	stringWithOutOR := strings.ReplaceAll(queries, "OR", "|")
+	stringWithOutAND := strings.ReplaceAll(stringWithOutOR, "AND", "&")
+
+	var formated = stringWithOutAND
+
+	var queue = make([]InterfaceNode, 0, 10)
+	queue = append(queue, &Node{})
+	for i := 0; i < len(formated); i++ {
+		if len(strings.Split(formated, " ")) <= 1 {
+			AndGroupCondFunc(queue)
+			SetPhraseFunc(queue, formated)
+			break
+		}
+
+		r := rune(formated[i])
+
+		switch r {
+		case OpenGroup:
+			OpenGroupFunc(queue)
+		case CloseGroup:
+			queue = CloseGroupFunc(queue)
+		case OR:
+			OrGroupCondFunc(queue)
+		case AND:
+			AndGroupCondFunc(queue)
+		default:
+			if unicode.IsLetter(r) {
+				for end, r2 := range formated[i:] {
+					if unicode.IsLetter(r2) == false && unicode.IsSpace(r2) == false {
+						SetPhraseFunc(queue, formated[i:i+end])
+						formated = formated[end:]
+						break
+					}
+				}
+			}
+		}
+	}
+
+	fmt.Printf("%#v", queue[0])
 }
