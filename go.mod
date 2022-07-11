@@ -1,4 +1,4 @@
-module public-sonar-technical-assessment
+module github.com/mark-marushak/public-sonar-technical-assessment
 
 go 1.18
 
