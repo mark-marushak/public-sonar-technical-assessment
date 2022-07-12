@@ -1,6 +1,7 @@
 <h1>Public sonar</h1>
 
 <h3>Project structure</h3>
+
 1. /message
 2. /parser
 3. /query
@@ -9,6 +10,7 @@
 
 <h4>/Message</h4>
 This folder contains sturuct of messages and cover:
+
 1. Parsing json
 2. Creating Message struct
 
@@ -70,6 +72,7 @@ func ParseJson(filepath string) ([]Query, error) {
 <h4>/Query</h4>
 This folder responsible for parsing and building query. 
 Every query has 4 components:
+
 1. GROUP and looks like (word OR words)
 2. AND 
 3. OR
