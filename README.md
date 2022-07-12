@@ -106,5 +106,5 @@ and add to `Search()` argument that looks like `Search( func(string) bool ) bool
 Now every node can use func that was passed through argument in any search nodes.
 
 <h4>/storage</h4>
-As usual every storage contains data about value files: logs, output etc.
+As usual every storage contains data about significant file: logs, output etc.
 There is no big logic.
