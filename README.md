@@ -1,11 +1,11 @@
 <h1>Public sonar</h1>
 
 <h3>Project structure</h3>
-* /message
-* /parser
-* /query
-* /repository
-* /storage
+1. /message
+2. /parser
+3. /query
+4. /repository
+5. /storage
 
 <h4>/Message</h4>
 This folder contains sturuct of messages and cover:
