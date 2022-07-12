@@ -2,10 +2,10 @@ package query
 
 import (
 	"fmt"
+	"github.com/mark-marushak/public-sonar-technical-assessment/repository"
+	"github.com/mark-marushak/public-sonar-technical-assessment/repository/regex"
 	"github.com/stretchr/testify/assert"
 	"log"
-	"public-sonar-technical-assessment/repository"
-	"public-sonar-technical-assessment/repository/regex"
 	"reflect"
 	"strings"
 	"testing"
@@ -13,7 +13,7 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	queries, err := ParseJson("/home/sandbox/GolandProjects/public-sonar-technical-assessment/storage/queries/cases.json")
+	queries, err := ParseJson("/home/sandbox/GolandProjects/github.com/mark-marushak/public-sonar-technical-assessment/storage/queries/cases.json")
 	if err != nil {
 		log.Fatal(err)
 	}

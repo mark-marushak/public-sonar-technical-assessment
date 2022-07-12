@@ -1,7 +1,7 @@
 package query
 
 import (
-	"public-sonar-technical-assessment/parser"
+	"github.com/mark-marushak/public-sonar-technical-assessment/parser"
 	"strings"
 	"unicode"
 )

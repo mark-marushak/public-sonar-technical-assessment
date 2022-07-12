@@ -1,9 +1,9 @@
 package query
 
 import (
+	"github.com/mark-marushak/public-sonar-technical-assessment/repository"
+	"github.com/mark-marushak/public-sonar-technical-assessment/repository/regex"
 	"github.com/stretchr/testify/assert"
-	"public-sonar-technical-assessment/repository"
-	"public-sonar-technical-assessment/repository/regex"
 	"testing"
 )
 

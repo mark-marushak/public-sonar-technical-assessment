@@ -6,7 +6,7 @@ import (
 )
 
 func TestParseJson(t *testing.T) {
-	messages, err := ParseJson("/home/sandbox/GolandProjects/public-sonar-technical-assessment/storage/messages/messages.json")
+	messages, err := ParseJson("/home/sandbox/GolandProjects/github.com/mark-marushak/public-sonar-technical-assessment/storage/messages/messages.json")
 	if err != nil {
 		log.Fatal(err)
 	}

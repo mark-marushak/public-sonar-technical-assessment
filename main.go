@@ -5,18 +5,18 @@ import (
 	"flag"
 	"fmt"
 	"github.com/go-errors/errors"
+	"github.com/mark-marushak/public-sonar-technical-assessment/message"
+	"github.com/mark-marushak/public-sonar-technical-assessment/query"
+	"github.com/mark-marushak/public-sonar-technical-assessment/repository"
+	"github.com/mark-marushak/public-sonar-technical-assessment/repository/regex"
 	"io"
 	"os"
-	"public-sonar-technical-assessment/message"
-	"public-sonar-technical-assessment/query"
-	"public-sonar-technical-assessment/repository"
-	"public-sonar-technical-assessment/repository/regex"
 )
 
 func main() {
-	pathToQueries := flag.String("cases", "/home/sandbox/GolandProjects/public-sonar-technical-assessment/storage/queries/cases.json", "Path to cases.")
-	pathToMessages := flag.String("messages", "/home/sandbox/GolandProjects/public-sonar-technical-assessment/storage/messages/messages.json", "Path to messages.")
-	pathToOutput := flag.String("outputs", "/home/sandbox/GolandProjects/public-sonar-technical-assessment/storage/output/outputs.json", "Path to output.")
+	pathToQueries := flag.String("cases", "./storage/queries/cases.json", "Path to cases.")
+	pathToMessages := flag.String("messages", "./storage/messages/messages.json", "Path to messages.")
+	pathToOutput := flag.String("outputs", "./storage/output/outputs.json", "Path to output.")
 
 	queries, err := query.ParseJson(*pathToQueries)
 	if err != nil {
